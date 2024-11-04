@@ -117,14 +117,144 @@ extern void setProgAST(block_t t);
 }
 
 %%
- /* Write your grammar rules below and before the next %% */
-
-
-
+/* Program structure */
 program:
     block { setProgAST($1); }
     ;
 
+/* Block structure, which consists of constant declarations, variable declarations, procedure declarations, and statements */
+block:
+    constDecls varDecls procDecls stmtList { $$ = create_block($1, $2, $3, $4); }
+    ;
+
+/* Constant declarations */
+constDecls:
+    constsym constDefList semisym { $$ = create_const_decls($2); }
+    | /* empty */ { $$ = create_empty_const_decls(); }
+    ;
+
+constDefList:
+    constDef { $$ = create_const_def_list($1); }
+    | constDefList commasym constDef { $$ = append_const_def_list($1, $3); }
+    ;
+
+constDef:
+    identsym eqsym numbersym { $$ = create_const_def($1, $3); }
+    ;
+
+/* Variable declarations */
+varDecls:
+    varsym identList semisym { $$ = create_var_decls($2); }
+    | /* empty */ { $$ = create_empty_var_decls(); }
+    ;
+
+identList:
+    identsym { $$ = create_ident_list($1); }
+    | identList commasym identsym { $$ = append_ident_list($1, $3); }
+    ;
+
+/* Procedure declarations */
+procDecls:
+    procDecl { $$ = create_proc_decls($1); }
+    | procDecls procDecl { $$ = append_proc_decls($1, $2); }
+    | /* empty */ { $$ = create_empty_proc_decls(); }
+    ;
+
+procDecl:
+    procsym identsym semisym block semisym { $$ = create_proc_decl($2, $4); }
+    ;
+
+/* Statement list */
+stmtList:
+    stmt { $$ = create_stmt_list($1); }
+    | stmtList semisym stmt { $$ = append_stmt_list($1, $3); }
+    ;
+
+/* Different types of statements */
+stmt:
+    assignStmt { $$ = $1; }
+    | callStmt { $$ = $1; }
+    | ifStmt { $$ = $1; }
+    | whileStmt { $$ = $1; }
+    | readStmt { $$ = $1; }
+    | printStmt { $$ = $1; }
+    ;
+
+/* Assignment statement */
+assignStmt:
+    identsym becomessym expr { $$ = create_assign_stmt($1, $3); }
+    ;
+
+/* Call statement */
+callStmt:
+    callsym identsym { $$ = create_call_stmt($2); }
+    ;
+
+/* If statement */
+ifStmt:
+    ifsym condition thensym stmt { $$ = create_if_stmt($2, $4, NULL); }
+    | ifsym condition thensym stmt elsesym stmt { $$ = create_if_stmt($2, $4, $6); }
+    ;
+
+/* While statement */
+whileStmt:
+    whilesym condition dosym stmt { $$ = create_while_stmt($2, $4); }
+    ;
+
+/* Read statement */
+readStmt:
+    readsym identsym { $$ = create_read_stmt($2); }
+    ;
+
+/* Print statement */
+printStmt:
+    printsym expr { $$ = create_print_stmt($2); }
+    ;
+
+/* Conditions */
+condition:
+    dbCondition { $$ = $1; }
+    | relOpCondition { $$ = $1; }
+    ;
+
+/* Divisible by condition */
+dbCondition:
+    expr divisiblesym bysym expr { $$ = create_db_condition($1, $4); }
+    ;
+
+/* Relational operation condition */
+relOpCondition:
+    expr relOp expr { $$ = create_rel_op_condition($1, $2, $3); }
+    ;
+
+relOp:
+    eqeqsym { $$ = create_rel_op(EQ); }
+    | neqsym { $$ = create_rel_op(NEQ); }
+    | ltsym { $$ = create_rel_op(LT); }
+    | leqsym { $$ = create_rel_op(LEQ); }
+    | gtsym { $$ = create_rel_op(GT); }
+    | geqsym { $$ = create_rel_op(GEQ); }
+    ;
+
+/* Expressions */
+expr:
+    term { $$ = $1; }
+    | expr plussym term { $$ = create_expr($1, PLUS, $3); }
+    | expr minussym term { $$ = create_expr($1, MINUS, $3); }
+    ;
+
+term:
+    factor { $$ = $1; }
+    | term multsym factor { $$ = create_term($1, MULT, $3); }
+    | term divsym factor { $$ = create_term($1, DIV, $3); }
+    ;
+
+/* Factors */
+factor:
+    numbersym { $$ = create_number_factor($1); }
+    | identsym { $$ = create_ident_factor($1); }
+    | lparensym expr rparensym { $$ = $2; }
+    ;
 %%
 
 // Set the program's ast to be ast
