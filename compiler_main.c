@@ -3,8 +3,8 @@
 #include "parser.h"
 #include "lexer.h"
 #include "ast.h"
-#include "symtab.h"
-#include "scope_check.h"
+// #include "symtab.h"
+// #include "scope_check.h"
 #include "utilities.h"
 #include "unparser.h"
 
