@@ -1,85 +1,47 @@
-//make a list of lists, representing scope, then the parsed thing.
-//arr[scope #][item in scope]
-//i = scope #
-//i++ when block start parsed
-//i-- when block end parsed
-//add to arr[i][x] when the xth thing is parsed
-
-#include <stdio.h>
+#include "symtab.h"
 #include <stdlib.h>
-#include <string.h>
 
-// Types of identifiers
-typedef enum { CONST_TYPE, VAR_TYPE, PROC_TYPE } IdentifierType;
-
-// Structure to hold information about each identifier
-typedef struct Symbol {
-    char *name;
-    IdentifierType type;
-    int value;             // Used for constants
-    struct Symbol *next;   // For chaining in hash table
-} Symbol;
-
-// Structure for each scope
-typedef struct Scope {
-    struct Scope *parent;    // Points to the parent scope (for nested scopes)
-    Symbol **symbols;        // Hash table of symbols in this scope
-    int size;                // Size of the hash table
-} Scope;
-
-// Global pointer to the current scope
-Scope *current_scope = NULL;
-
-Scope* create_scope(Scope *parent, int size) {
-    Scope *scope = (Scope *)malloc(sizeof(Scope));
-    scope->parent = parent;
-    scope->symbols = (Symbol **)calloc(size, sizeof(Symbol *));
-    scope->size = size;
-    return scope;
+SymbolTable *create_symbol_table(int initial_capacity) {
+    SymbolTable *symtab = (SymbolTable *)malloc(sizeof(SymbolTable));
+    symtab->stack = (Scope **)malloc(initial_capacity * sizeof(Scope *));
+    symtab->top = -1;
+    symtab->capacity = initial_capacity;
+    return symtab;
 }
 
-void enter_scope(int size) {
-    current_scope = create_scope(current_scope, size);
+void destroy_symbol_table(SymbolTable *symtab) {
+    while (symtab->top >= 0) {
+        exit_scope(symtab);
+    }
+    free(symtab->stack);
+    free(symtab);
 }
 
-void exit_scope() {
-    if (current_scope != NULL) {
-        Scope *old_scope = current_scope;
-        current_scope = current_scope->parent;
-        free(old_scope->symbols);
-        free(old_scope);
+void enter_scope(SymbolTable *symtab, int scope_size) {
+    if (symtab->top + 1 >= symtab->capacity) {
+        symtab->capacity *= 2;
+        symtab->stack = (Scope **)realloc(symtab->stack, symtab->capacity * sizeof(Scope *));
+    }
+    symtab->stack[++symtab->top] = create_scope(scope_size);
+}
+
+void exit_scope(SymbolTable *symtab) {
+    if (symtab->top >= 0) {
+        destroy_scope(symtab->stack[symtab->top--]);
     }
 }
 
-Symbol* add_symbol(Scope *scope, const char *name, IdentifierType type, int value) {
-    unsigned int index = hash(name, scope->size);
-    Symbol *new_symbol = (Symbol *)malloc(sizeof(Symbol));
-    new_symbol->name = strdup(name);
-    new_symbol->type = type;
-    new_symbol->value = value;
-    new_symbol->next = scope->symbols[index];
-    scope->symbols[index] = new_symbol;
-    return new_symbol;
+bool add_symbol(SymbolTable *symtab, const char *name, IdentifierType type, int value) {
+    if (symtab->top < 0) return false;
+    return add_symbol(symtab->stack[symtab->top], name, type, value);
 }
 
-Symbol* lookup_symbol(Scope *scope, const char *name) {
-    while (scope != NULL) {
-        unsigned int index = hash(name, scope->size);
-        Symbol *symbol = scope->symbols[index];
-        while (symbol != NULL) {
-            if (strcmp(symbol->name, name) == 0)
-                return symbol;
-            symbol = symbol->next;
+Symbol *lookup_symbol(SymbolTable *symtab, const char *name) {
+    for (int i = symtab->top; i >= 0; i--) {
+        Symbol *symbol = lookup_symbol_in_scope(symtab->stack[i], name);
+        if (symbol != NULL) {
+            return symbol;
         }
-        scope = scope->parent;
     }
-    return NULL;
-}
-
-
-// Hash function for symbol table
-unsigned int hash(const char *name, int size) {
-    unsigned int hash_val = 0;
-    while (*name) hash_val = (hash_val << 5) + *name++;
-    return hash_val % size;
+    return NULL; // Not found in any scope
 }
