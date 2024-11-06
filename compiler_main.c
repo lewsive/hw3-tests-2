@@ -3,7 +3,7 @@
 #include "parser.h"
 #include "lexer.h"
 #include "ast.h"
-// #include "symtab.h"
+#include "symtab.h"
 // #include "scope_check.h"
 #include "utilities.h"
 #include "unparser.h"
@@ -38,7 +38,7 @@ int main(int argc, char *argv[])
     // comment out the next two commands to disable declaration checking
 
     // building symbol table
-    // symtab_initialize();
+    symtab_initialize();
 
     // check for duplicate declarations
     // scope_check_program(progast);
