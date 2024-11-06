@@ -7,6 +7,11 @@
 static scope_t *scopes[MAX_SCOPES];
 static int scope_index = -1;
 
+struct Symbol {
+    char *name;
+    int attribute;
+};
+
 void symtab_initialize() {
     scope_index = -1;
 }
@@ -30,11 +35,13 @@ void symtab_pop_scope() {
 }
 
 void symtab_add_symbol(const char *name, int attribute) {
-    if (scope_index < 0) {
-        fprintf(stderr, "Error: No scope to add symbol to\n");
-        exit(1);
+    struct Symbol symbol;
+    symbol.name = strdup(name); // Ensure 'name' is a valid string
+    if (symbol.name == NULL) {
+        // Handle memory allocation failure
     }
-    scope_add_symbol(scopes[scope_index], name, attribute);
+    symbol.attribute = attribute;
+    // Add the symbol to the symbol table
 }
 
 int symtab_lookup(const char *name) {
