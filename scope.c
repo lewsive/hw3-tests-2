@@ -1,4 +1,4 @@
-#include "scope_check.h"
+#include "scope.h"
 #include <stdlib.h>
 #include <string.h>
 
@@ -33,19 +33,17 @@ void destroy_scope(Scope *scope) {
     free(scope);
 }
 
-bool add_symbol(Scope *scope, const char *name, IdentifierType type, int value) {
+bool add_symbol_to_scope(Scope *scope, const char *name, IdentifierType type, int value) {
     unsigned int index = hash(name, scope->size);
     Symbol *symbol = scope->symbols[index];
 
-    // Check if symbol already exists in this scope
     while (symbol) {
         if (strcmp(symbol->name, name) == 0) {
-            return false; // Symbol already exists in this scope
+            return false;
         }
         symbol = symbol->next;
     }
 
-    // Create and add the new symbol
     symbol = (Symbol *)malloc(sizeof(Symbol));
     symbol->name = strdup(name);
     symbol->type = type;
