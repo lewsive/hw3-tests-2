@@ -7,6 +7,7 @@
 #include "scope_check.h"
 #include "utilities.h"
 #include "unparser.h"
+#include "scope.h"
 
 /* Print a usage message on stderr 
    and exit with failure. */
