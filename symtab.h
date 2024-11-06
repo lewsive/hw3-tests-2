@@ -1,7 +1,7 @@
 #ifndef SYMTAB_H
 #define SYMTAB_H
 
-#include "scope.h"
+#include "scope_check.h"
 
 typedef struct {
     Scope **stack;
