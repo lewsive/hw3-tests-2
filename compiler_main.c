@@ -4,7 +4,7 @@
 #include "lexer.h"
 #include "ast.h"
 #include "symtab.h"
-// #include "scope_check.h"
+#include "scope.h"
 #include "utilities.h"
 #include "unparser.h"
 
@@ -41,7 +41,7 @@ int main(int argc, char *argv[])
     symtab_initialize();
 
     // check for duplicate declarations
-    // scope_check_program(progast);
+    scope_check_program(progast);
 
     return EXIT_SUCCESS;
 }
