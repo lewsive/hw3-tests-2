@@ -4,7 +4,7 @@
 #include "lexer.h"
 #include "ast.h"
 #include "symtab.h"
-#include "scope.h"
+#include "scope_check.h"
 #include "utilities.h"
 #include "unparser.h"
 

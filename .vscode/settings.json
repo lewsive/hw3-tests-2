@@ -1,6 +1,9 @@
 {
     "files.associations": {
         "*.ejs": "html",
-        "unparser.h": "c"
+        "unparser.h": "c",
+        "symtab.h": "c",
+        "scope_check.h": "c",
+        "utilities.h": "c"
     }
 }
