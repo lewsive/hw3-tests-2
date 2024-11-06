@@ -2,6 +2,7 @@
 #define SYMTAB_H
 
 #include "scope.h"
+#include "symtab.c"
 
 void symtab_initialize();
 void symtab_push_scope();
