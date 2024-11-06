@@ -7,6 +7,8 @@
 #include "scope_check.h"
 #include "utilities.h"
 #include "unparser.h"
+#include "symtab.c"
+#include "scope_check.c"
 
 /* Print a usage message on stderr 
    and exit with failure. */
