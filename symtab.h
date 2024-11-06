@@ -1,20 +1,12 @@
 #ifndef SYMTAB_H
 #define SYMTAB_H
 
-#include "scope_check.h"
-#include "symtab.c"
+#include "scope.h"
 
-typedef struct {
-    Scope **stack;
-    int top;
-    int capacity;
-} SymbolTable;
+void symtab_initialize();
+void symtab_push_scope();
+void symtab_pop_scope();
+void symtab_add_symbol(const char *name, int attribute);
+int symtab_lookup(const char *name);
 
-SymbolTable *create_symbol_table(int initial_capacity);
-void destroy_symbol_table(SymbolTable *symtab);
-void enter_scope(SymbolTable *symtab, int scope_size);
-void exit_scope(SymbolTable *symtab);
-bool add_symbol(SymbolTable *symtab, const char *name, IdentifierType type, int value);  // Refers to SymbolTable version
-Symbol *lookup_symbol(SymbolTable *symtab, const char *name);
-
-#endif // SYMTAB_H
+#endif
