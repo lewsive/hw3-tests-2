@@ -2,6 +2,7 @@
 #define SYMTAB_H
 
 #include "scope_check.h"
+#include "symtab.c"
 
 typedef struct {
     Scope **stack;
